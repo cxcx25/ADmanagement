@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Directory Info</title>
+</head>
+<body>
+    <h1>Get User Info from Active Directory</h1>
+    <form id="adForm">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="text" id="domain" placeholder="Domain" required>
+        <button type="submit">Get Info</button>
+    </form>
+
+    <h2>Result:</h2>
+    <pre id="result"></pre>
+
+    <script>
+        document.getElementById('adForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const domain = document.getElementById('domain').value;
+            
+            fetch('/get-user-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, domain })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const result = JSON.stringify(data, null, 2);
+                document.getElementById('result').textContent = result;
+            })
+            .catch(error => {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            });
+        });
+    </script>
+</body>
+</html>
