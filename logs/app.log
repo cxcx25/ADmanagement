@@ -1,0 +1,110 @@
+[2024-11-15T04:58:00.679Z] Server started at http://localhost:3000
+[2024-11-15T04:58:15.520Z] Raw PowerShell Output for c22643: WARNING: The names of some imported commands from the module 'AccountManagement' include unapproved verbs that might make them less 
+discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose parameter. For a list
+ of approved verbs, type Get-Verb.
+C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 -Username 'c22643' -Domain 'lux'
+
+[2024-11-15T04:58:15.520Z] Error parsing PowerShell output for c22643: Unexpected token 'W', "WARNING: T"... is not valid JSON
+[2024-11-15T05:32:12.909Z] Server started at http://localhost:3000
+[2024-11-15T05:32:20.654Z] Raw PowerShell Output for c22643: WARNING: The names of some imported commands from the module 'AccountManagement' include unapproved verbs that might make them less 
+discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose parameter. For a list
+ of approved verbs, type Get-Verb.
+C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 -Username 'c22643' -Domain 'lux'
+
+[2024-11-15T05:32:20.654Z] Error parsing PowerShell output for c22643: Unexpected token 'W', "WARNING: T"... is not valid JSON
+[2024-11-17T23:24:40.196Z] Server is running on http://localhost:3000
+[2024-11-17T23:24:49.950Z] Received GET request for /
+[2024-11-17T23:24:57.239Z] Received POST request for /get-user-info
+[2024-11-17T23:24:57.264Z] Request received for username: c22643, domain: lux
+[2024-11-17T23:24:57.265Z] Executing PowerShell command: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22643" -Domain "lux"
+[2024-11-17T23:24:58.106Z] exec error: Command failed: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22643" -Domain "lux"
+C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
+ 
+
+[2024-11-17T23:24:58.106Z] stdout: WARNING: The names of some imported commands from the module 'AccountManagement' include unapproved verbs that might make
+ them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose
+ parameter. For a list of approved verbs, type Get-Verb.
+[2024-11-17T23:24:58.106Z] stderr: C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
+[2024-11-17T23:25:02.672Z] Received POST request for /get-user-info
+[2024-11-17T23:25:02.675Z] Request received for username: c22643, domain: lux
+[2024-11-17T23:25:02.676Z] Executing PowerShell command: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22643" -Domain "lux"
+[2024-11-17T23:25:04.042Z] exec error: Command failed: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22643" -Domain "lux"
+C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
+ 
+
+[2024-11-17T23:25:04.042Z] stdout: WARNING: The names of some imported commands from the module 'AccountManagement' include unapproved verbs that might make
+ them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose
+ parameter. For a list of approved verbs, type Get-Verb.
+[2024-11-17T23:25:04.042Z] stderr: C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
+[2024-11-17T23:32:19.132Z] Server is running on http://localhost:3000
+[2024-11-18T00:04:15.252Z] Received POST request for /get-user-info
+[2024-11-18T00:04:15.300Z] Request received for username: c22644, domain: lux
+[2024-11-18T00:04:15.301Z] Executing PowerShell command: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22644" -Domain "lux"
+[2024-11-18T00:04:17.884Z] exec error: Command failed: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22644" -Domain "lux"
+C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
+ 
+
+[2024-11-18T00:04:17.885Z] stdout: WARNING: The names of some imported commands from the module 'AccountManagement' include unapproved verbs that might make
+ them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose
+ parameter. For a list of approved verbs, type Get-Verb.
+[2024-11-18T00:04:17.885Z] stderr: C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
+[2024-11-18T00:04:40.486Z] Received GET request for /
+[2024-11-18T00:04:48.278Z] Received POST request for /get-user-info
+[2024-11-18T00:04:48.281Z] Request received for username: c22644, domain: lux
+[2024-11-18T00:04:48.282Z] Executing PowerShell command: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22644" -Domain "lux"
+[2024-11-18T00:04:48.894Z] exec error: Command failed: powershell.exe -ExecutionPolicy Bypass -File "C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1" -Username "c22644" -Domain "lux"
+C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
+ 
+
+[2024-11-18T00:04:48.895Z] stdout: WARNING: The names of some imported commands from the module 'AccountManagement' include unapproved verbs that might make
+ them less discoverable. To find the commands with unapproved verbs, run the Import-Module command again with the Verbose
+ parameter. For a list of approved verbs, type Get-Verb.
+[2024-11-18T00:04:48.895Z] stderr: C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1 : An error occurred: LDAP connection 
+failed: You cannot call a method on a null-valued expression.
+At C:\Users\joseph.marilla\Documents\Project\ADmanagement\scripts\Get-UserADInfo.ps1:153 char:39
++     Write-Error "An error occurred: $($_.Exception.Message)"
++                                       ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Get-UserADInfo.ps1
