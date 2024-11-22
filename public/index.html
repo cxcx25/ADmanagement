@@ -5,183 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AD User Management</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --success-color: #2ecc71;
-            --warning-color: #f1c40f;
-            --danger-color: #e74c3c;
-            --text-color: #2c3e50;
-            --background-color: #ecf0f1;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            font-family: Consolas, monospace;
             margin: 0;
             padding: 20px;
-            background-color: var(--background-color);
-            color: var(--text-color);
+            background-color: #012456;
+            color: #ffffff;
+            font-size: 16px;
+            line-height: 1;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 30px;
         }
 
         .search-form {
-            display: flex;
-            gap: 10px;
             margin-bottom: 20px;
+            padding: 20px;
+            background-color: #1a3a6c;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00ff00;
         }
 
         input, select, button {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            font-family: Consolas, monospace;
+            padding: 8px;
+            background-color: #1a3a6c;
+            border: 1px solid #ffffff;
+            color: #ffffff;
             font-size: 16px;
-        }
-
-        input, select {
-            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
             cursor: pointer;
+            background-color: #2a4a7c;
+            padding: 10px;
             transition: background-color 0.3s;
-            min-width: 100px;
         }
 
         button:hover {
-            background-color: #2980b9;
+            background-color: #3a5a8c;
+        }
+
+        button:disabled {
+            background-color: #1a2a4c;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .loading {
+            display: none;
+            color: #00ff00;
+            margin: 10px 0;
         }
 
         .error-message {
-            background-color: #fee2e2;
-            border: 1px solid #ef4444;
-            color: #dc2626;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0.375rem;
             display: none;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #ff000033;
+            border-left: 4px solid #ff0000;
+            border-radius: 3px;
         }
 
-        .user-info {
-            display: none;
-            margin-top: 20px;
+        .error-details {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ff9999;
         }
 
-        .user-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
+        .troubleshooting {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #ffffff11;
+            border-radius: 3px;
+        }
+
+        .troubleshooting h4 {
+            color: #00ff00;
+            margin: 0 0 10px 0;
+        }
+
+        .troubleshooting ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #cccccc;
+        }
+
+        #userInfo {
+            display: none;
             padding: 20px;
-            background-color: var(--primary-color);
-            color: white;
+            background-color: #1a3a6c;
             border-radius: 5px;
+            white-space: pre;
+            font-size: 16px;
+            line-height: 1.4;
         }
 
-        .user-avatar {
-            width: 80px;
-            height: 80px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            font-size: 32px;
-            color: white;
+        .status-section {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 3px;
         }
 
-        .detail-group {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .detail-group:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            display: inline-block;
-            width: 200px;
-            color: var(--secondary-color);
-            font-weight: 600;
-        }
-
-        .detail-value {
-            display: inline-block;
-            color: var(--text-color);
+        .account-status {
+            color: #00ff00;
+            font-weight: bold;
         }
 
         .status-true {
-            color: var(--success-color);
-            font-weight: bold;
+            color: #ff4444;
         }
 
         .status-false {
-            color: var(--danger-color);
-            font-weight: bold;
+            color: #00ff00;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .connection-status.online {
+            background-color: #00ff0033;
+            color: #00ff00;
+        }
+
+        .connection-status.offline {
+            background-color: #ff000033;
+            color: #ff0000;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .searching {
+            animation: pulse 1.5s infinite;
         }
     </style>
 </head>
 <body>
+    <div id="connectionStatus" class="connection-status">Checking connection...</div>
+    
     <div class="container">
-        <h1>AD User Management</h1>
-        
-        <form class="search-form" id="searchForm">
-            <input type="text" id="username" placeholder="Enter username" required>
-            <select id="domain" required>
-                <option value="lux">Luxottica</option>
-                <option value="essilor">Essilor</option>
-            </select>
-            <button type="submit">Search</button>
-        </form>
+        <div class="search-form">
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" pattern="[a-zA-Z0-9._-]+" title="Only letters, numbers, dots, underscores, and hyphens are allowed" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="domain">Domain:</label>
+                    <select id="domain" required>
+                        <option value="lux">Luxottica</option>
+                        <option value="essilor">Essilor</option>
+                    </select>
+                </div>
+                
+                <button type="submit" id="searchButton">Search</button>
+            </form>
+            <div id="loading" class="loading">Searching for user information...</div>
+        </div>
 
         <div id="errorMessage" class="error-message"></div>
-
-        <div id="userInfo" class="user-info">
-            <div class="user-header">
-                <div class="user-avatar" id="userAvatar"></div>
-                <div>
-                    <h2 id="displayName">Loading...</h2>
-                    <p id="department">Loading...</p>
-                </div>
-            </div>
-
-            <div id="userDetails">
-                <!-- Details will be populated by JavaScript -->
-            </div>
-        </div>
+        <div id="userInfo"></div>
     </div>
 
     <script>
+        // Connection status check
+        async function checkConnection() {
+            const statusElement = document.getElementById('connectionStatus');
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    statusElement.className = 'connection-status online';
+                    statusElement.textContent = 'Connected';
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (error) {
+                statusElement.className = 'connection-status offline';
+                statusElement.textContent = 'Disconnected';
+            }
+        }
+
+        // Check connection every 30 seconds
+        setInterval(checkConnection, 30000);
+        checkConnection();
+
+        // Form submission handler
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const username = document.getElementById('username').value;
             const domain = document.getElementById('domain').value;
             const errorDiv = document.getElementById('errorMessage');
             const userInfoDiv = document.getElementById('userInfo');
+            const loadingDiv = document.getElementById('loading');
+            const searchButton = document.getElementById('searchButton');
+            
+            // Reset display
+            errorDiv.style.display = 'none';
+            userInfoDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            searchButton.disabled = true;
+            searchButton.textContent = 'Searching...';
             
             try {
-                errorDiv.style.display = 'none';
-                userInfoDiv.style.display = 'none';
-                
                 const response = await fetch('/get-user-info', {
                     method: 'POST',
                     headers: {
@@ -192,102 +243,156 @@
 
                 const data = await response.json();
                 
-                if (data.error) {
-                    errorDiv.textContent = data.error;
+                if (!response.ok) {
+                    errorDiv.innerHTML = `<strong>${data.message}</strong>`;
+                    if (data.details) {
+                        errorDiv.innerHTML += `<div class="error-details">${data.details}</div>`;
+                    }
+                    
+                    // Add troubleshooting steps based on error type
+                    if (data.type === 'NETWORK_ERROR') {
+                        errorDiv.innerHTML += `
+                            <div class="troubleshooting">
+                                <h4>Troubleshooting Steps:</h4>
+                                <ul>
+                                    <li>Check if you are connected to the company network</li>
+                                    <li>Verify your VPN connection is active and stable</li>
+                                    <li>Try disconnecting and reconnecting to the VPN</li>
+                                    <li>Contact IT support if the issue persists</li>
+                                </ul>
+                            </div>`;
+                    } else if (data.type === 'USER_NOT_FOUND') {
+                        errorDiv.innerHTML += `
+                            <div class="troubleshooting">
+                                <h4>Possible Solutions:</h4>
+                                <ul>
+                                    <li>Verify the username is correct</li>
+                                    <li>Check if you selected the correct domain</li>
+                                    <li>Contact HR if you believe this is an error</li>
+                                </ul>
+                            </div>`;
+                    }
+                    
                     errorDiv.style.display = 'block';
-                    return;
+                } else {
+                    displayUserInfo(data, username, domain);
                 }
-
-                displayUserInfo(data);
             } catch (error) {
-                errorDiv.textContent = error.message || 'An error occurred while fetching user information.';
+                errorDiv.innerHTML = `
+                    <strong>Connection Error</strong>
+                    <div class="error-details">Unable to connect to the server. Please try again later.</div>
+                    <div class="troubleshooting">
+                        <h4>Troubleshooting Steps:</h4>
+                        <ul>
+                            <li>Check your internet connection</li>
+                            <li>Verify the server is running</li>
+                            <li>Try refreshing the page</li>
+                        </ul>
+                    </div>`;
                 errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+                searchButton.disabled = false;
+                searchButton.textContent = 'Search';
             }
         });
 
-        function displayUserInfo(user) {
-            document.getElementById('userInfo').style.display = 'block';
-            
-            // Set avatar initials
-            const initials = user.DisplayName ? user.DisplayName.split(' ')
-                .map(n => n[0])
-                .join('')
-                .toUpperCase() : user.SamAccountName.substring(0, 2).toUpperCase();
-            document.getElementById('userAvatar').textContent = initials;
-            
-            // Set header info
-            document.getElementById('displayName').textContent = user.DisplayName || user.SamAccountName;
-            document.getElementById('department').textContent = user.Department || 'No Department';
+        function displayUserInfo(response, username, domain) {
+            const userInfoDiv = document.getElementById('userInfo');
+            userInfoDiv.innerHTML = '';
+            userInfoDiv.style.display = 'block';
 
-            // Format date function
-            const formatDate = (dateStr, isExpirationDate = false) => {
-                if (!dateStr) return '';
-                if (isExpirationDate && dateStr === "No expiration date set") return dateStr;
-                
-                try {
-                    // Handle PowerShell date format: /Date(timestamp)/
-                    if (typeof dateStr === 'string' && dateStr.startsWith('/Date(')) {
-                        const timestamp = parseInt(dateStr.replace(/[^0-9]/g, ''));
-                        const date = new Date(timestamp);
-                        if (date instanceof Date && !isNaN(date)) {
-                            const formattedDate = date.toLocaleString('en-US', { 
-                                month: '2-digit',
-                                day: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true 
-                            });
-                            return isExpirationDate ? `Expires on ${formattedDate}` : formattedDate;
-                        }
-                        return '';
-                    }
-                    
-                    // Handle regular date strings
-                    const date = new Date(dateStr);
-                    if (date instanceof Date && !isNaN(date)) {
-                        const formattedDate = date.toLocaleString('en-US', { 
-                            month: '2-digit',
-                            day: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true 
-                        });
-                        return isExpirationDate ? `Expires on ${formattedDate}` : formattedDate;
-                    }
-                    return '';
-                } catch {
-                    return isExpirationDate ? dateStr : ''; // Return original string only for expiration dates
-                }
-            };
+            const user = response.accountInfo;
 
-            // Create detail groups in specified order
-            const details = [
-                { label: 'DisplayName', value: user.DisplayName || '' },
-                { label: 'SamAccountName', value: user.SamAccountName },
-                { label: 'Name', value: user.Name },
-                { label: 'PasswordExpired', value: user.PasswordExpired ? 'True' : 'False', status: !user.PasswordExpired },
-                { label: 'PasswordLastSet', value: formatDate(user.PasswordLastSet) },
-                { label: 'PasswordExpirationDate', value: formatDate(user.PasswordExpirationDate) },
-                { label: 'AccountExpirationDate', value: formatDate(user.AccountExpirationDate, true) },
-                { label: 'IsLocked', value: user.IsLocked ? 'True' : 'False', status: !user.IsLocked },
-                { label: 'IsDisabled', value: user.IsDisabled ? 'True' : 'False', status: !user.IsDisabled },
-                { label: 'UserPrincipalName', value: user.UserPrincipalName },
-                { label: 'WhenChanged', value: formatDate(user.WhenChanged) },
-                { label: 'WhenCreated', value: formatDate(user.WhenCreated) },
-                { label: 'Mail', value: user.Mail || '' },
-                { label: 'Department', value: user.Department || '' },
-                { label: 'DistinguishedName', value: user.DistinguishedName }
+            // Display alerts if any
+            if (response.alerts && response.alerts.length > 0) {
+                let alertsHtml = response.alerts.map(alert => 
+                    `<div class="account-status warning">${alert}</div>`
+                ).join('\n');
+                userInfoDiv.innerHTML = alertsHtml + '\n\n';
+            }
+
+            // Group user information by category
+            const accountInfo = [
+                { label: 'Display Name', value: user.DisplayName || 'N/A' },
+                { label: 'Username', value: user.Username || 'N/A' },
+                { label: 'Full Name', value: user.FullName || 'N/A' },
+                { label: 'Email', value: user.Email || 'N/A' },
+                { label: 'Department', value: user.Department || 'N/A' }
             ];
 
-            const detailsContainer = document.getElementById('userDetails');
-            detailsContainer.innerHTML = details.map(detail => `
-                <div class="detail-group">
-                    <div class="detail-label">${detail.label}</div>
-                    <div class="detail-value${detail.status !== undefined ? ' status-' + detail.status : ''}">${detail.value}</div>
-                </div>
-            `).join('');
+            const securityInfo = [
+                { label: 'Account Locked', value: user.AccountLocked ? 'Yes' : 'No', status: true },
+                { label: 'Account Disabled', value: user.AccountDisabled ? 'Yes' : 'No', status: true },
+                { label: 'Password Expired', value: user.PasswordExpired ? 'Yes' : 'No', status: true }
+            ];
+
+            const datesInfo = [
+                { label: 'Password Last Set', value: user.PasswordLastSet || 'N/A' },
+                { label: 'Password Expiration', value: user.PasswordExpiration || 'N/A' },
+                { label: 'Account Expiration', value: user.AccountExpiration || 'N/A' },
+                { label: 'Last Modified', value: user.LastModified || 'N/A' },
+                { label: 'Created Date', value: user.CreatedDate || 'N/A' }
+            ];
+
+            // Build the output
+            let output = [];
+
+            // Add account information
+            output.push('Account Information:');
+            output.push(...accountInfo.map(formatInfoLine));
+            output.push('');
+
+            // Add security information
+            output.push('Security Status:');
+            output.push(...securityInfo.map(formatInfoLine));
+            output.push('');
+
+            // Add dates information
+            output.push('Important Dates:');
+            output.push(...datesInfo.map(formatInfoLine));
+
+            userInfoDiv.innerHTML += output.join('\n');
+        }
+
+        function formatInfoLine(info) {
+            const padding = ' '.repeat(Math.max(25 - info.label.length, 0));
+            let value = info.value;
+            
+            if (info.status) {
+                value = `<span class="status-${value === 'Yes'}">${value}</span>`;
+            }
+            
+            return `${info.label}${padding}: ${value}`;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr || dateStr === 'No expiration date set' || dateStr === 'Password does not expire') {
+                return dateStr || 'N/A';
+            }
+            
+            try {
+                if (typeof dateStr === 'string' && dateStr.startsWith('/Date(')) {
+                    const timestamp = parseInt(dateStr.replace(/[^0-9]/g, ''));
+                    dateStr = new Date(timestamp).toISOString();
+                }
+                
+                const date = new Date(dateStr);
+                if (date instanceof Date && !isNaN(date)) {
+                    return date.toLocaleString('en-US', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    }).replace(',', '');
+                }
+                return dateStr;
+            } catch {
+                return dateStr;
+            }
         }
     </script>
 </body>

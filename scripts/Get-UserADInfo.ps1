@@ -3,85 +3,128 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Username,
     [Parameter(Mandatory = $true)]
-    [string]$Domain
+    [string]$Domain,
+    [Parameter(Mandatory = $false)]
+    [switch]$SkipChecks
 )
 
-try {
-    # Import the ActiveDirectory module
-    Import-Module ActiveDirectory
+# Set error action preference and trap errors
+$ErrorActionPreference = "Stop"
+$VerbosePreference = "SilentlyContinue"  # Suppress verbose output
+$Global:Error.Clear()
 
-    Write-Host "Searching for user: $Username in domain: $Domain"
+trap {
+    Write-Host "[ERROR] Fatal error: $_"
+    Write-Host "[ERROR] Stack trace: $($_.ScriptStackTrace)"
+    @{
+        error = $true
+        message = "Fatal Error"
+        details = $_.ToString()
+        stack = $_.ScriptStackTrace
+    } | ConvertTo-Json
+    Write-Host "[COMMAND_COMPLETE]"
+    exit 1
+}
+
+# Import AD module silently
+Import-Module ActiveDirectory -Verbose:$false
+
+function Format-NullableDate {
+    param([DateTime]$date)
+    if ($date) {
+        return $date.ToString("MM/dd/yyyy hh:mm:ss tt")
+    }
+    return ""
+}
+
+try {
+    Write-Host "[DEBUG] Starting script execution"
     
-    # Convert domain name to proper format
+    # Verify ActiveDirectory module is available
+    if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
+        throw "ActiveDirectory PowerShell module is not installed"
+    }
+    
+    Write-Host "[DEBUG] Importing ActiveDirectory module"
+    Import-Module ActiveDirectory -ErrorAction Stop -Verbose
+    Write-Host "[DEBUG] Module imported successfully"
+
+    # Simple domain mapping
     $domainFQDN = switch ($Domain.ToLower()) {
         "lux" { "luxgroup.net" }
-        "essilor" { "essilor.com" }
+        "essilor" { "us.essilor.pvt" }
         default { $Domain }
     }
+    Write-Host "[DEBUG] Resolved domain FQDN: $domainFQDN"
 
-    Write-Host "Using domain FQDN: $domainFQDN"
-
-    # Try to get domain controller
-    try {
-        $dc = (Get-ADDomainController -DomainName $domainFQDN -Discover -NextClosestSite).HostName[0]
-        Write-Host "Found domain controller: $dc"
-    } catch {
-        Write-Host "Could not auto-discover DC, using domain name directly"
-        $dc = $domainFQDN
+    Write-Host "[DEBUG] Testing connection to domain"
+    $testConnection = Test-Connection -ComputerName $domainFQDN -Count 1 -ErrorAction Stop
+    if (-not $testConnection) {
+        throw "Cannot connect to domain: $domainFQDN"
     }
+    Write-Host "[DEBUG] Domain connection successful"
 
-    # Get user information with additional properties
-    $user = Get-ADUser -Identity $Username -Server $dc -Properties DisplayName, SamAccountName, Name, PasswordExpired, 
-        PasswordLastSet, AccountExpirationDate, LockedOut, Enabled, UserPrincipalName, WhenChanged, WhenCreated, 
-        Mail, Department, DistinguishedName, "msDS-UserPasswordExpiryTimeComputed"
+    Write-Host "[DEBUG] Starting AD query for user: $Username"
+    $properties = @(
+        'DisplayName', 'SamAccountName', 'Name',
+        'PasswordExpired', 'PasswordLastSet',
+        'AccountExpirationDate', 'LockedOut',
+        'Enabled', 'Mail', 'Department',
+        'WhenChanged', 'WhenCreated',
+        'msDS-UserPasswordExpiryTimeComputed'
+    )
 
+    Write-Host "[DEBUG] Executing Get-ADUser command"
+    $user = Get-ADUser -Identity $Username -Server $domainFQDN -Properties $properties -ErrorAction Stop
+    
     if ($null -eq $user) {
-        Write-Error "User not found: $Username"
-        exit 1
+        throw "User not found: $Username"
     }
 
-    # Calculate alerts
-    $alerts = @()
-    if ($user.LockedOut) {
-        $alerts += "Account is locked"
-    }
-    if ($user.PasswordExpired) {
-        $alerts += "Password is expired"
-    }
-    if ($user.AccountExpirationDate -and $user.AccountExpirationDate -lt (Get-Date)) {
-        $alerts += "Account expiration date has passed"
-    }
-    if (-not $user.Enabled) {
-        $alerts += "Account is disabled"
-    }
-
-    # Convert to custom object with desired properties
+    Write-Host "[DEBUG] User found, processing data"
     $userInfo = @{
-        DisplayName = $user.DisplayName
-        SamAccountName = $user.SamAccountName
-        Name = $user.Name
-        PasswordExpired = $user.PasswordExpired
-        PasswordLastSet = $user.PasswordLastSet
-        AccountExpirationDate = if ($user.AccountExpirationDate) { $user.AccountExpirationDate } else { "No expiration date set" }
-        IsLocked = $user.LockedOut
-        IsDisabled = -not $user.Enabled
-        UserPrincipalName = $user.UserPrincipalName
-        WhenChanged = $user.WhenChanged
-        WhenCreated = $user.WhenCreated
-        Mail = $user.Mail
-        Department = $user.Department
-        DistinguishedName = $user.DistinguishedName
-        PasswordExpirationDate = if ($user.'msDS-UserPasswordExpiryTimeComputed' -and $user.'msDS-UserPasswordExpiryTimeComputed' -ne 0) { 
-            [datetime]::FromFileTime($user.'msDS-UserPasswordExpiryTimeComputed') 
-        } else { 
-            "Password does not expire" 
+        alerts = @()
+        accountInfo = @{
+            DisplayName = if ($user.DisplayName) { $user.DisplayName } else { "" }
+            Username = if ($user.SamAccountName) { $user.SamAccountName } else { "" }
+            FullName = if ($user.Name) { $user.Name } else { "" }
+            Email = if ($user.Mail) { $user.Mail } else { "" }
+            Department = if ($user.Department) { $user.Department } else { "" }
+            AccountLocked = [bool]$user.LockedOut
+            AccountDisabled = -not [bool]$user.Enabled
+            PasswordExpired = [bool]$user.PasswordExpired
+            PasswordLastSet = if ($user.PasswordLastSet) { Format-NullableDate $user.PasswordLastSet } else { "" }
+            PasswordExpiration = if ($user.'msDS-UserPasswordExpiryTimeComputed') {
+                Format-NullableDate ([datetime]::FromFileTime($user.'msDS-UserPasswordExpiryTimeComputed'))
+            } else { "" }
+            AccountExpiration = if ($user.AccountExpirationDate) { Format-NullableDate $user.AccountExpirationDate } else { "No expiration date set" }
+            LastModified = if ($user.WhenChanged) { Format-NullableDate $user.WhenChanged } else { "" }
+            CreatedDate = if ($user.WhenCreated) { Format-NullableDate $user.WhenCreated } else { "" }
         }
-        AccountStatus = if ($alerts.Count -gt 0) { $alerts } else { @("Account is in good standing") }
     }
 
-    # Convert to JSON and output
-    $userInfo | ConvertTo-Json
-} catch {
-    Write-Error "Error getting user info: $($_.Exception.Message)"
+    # Add alerts
+    if ($user.LockedOut) { $userInfo.alerts += "Account is locked" }
+    if ($user.PasswordExpired) { $userInfo.alerts += "Password is expired" }
+    if ($user.AccountExpirationDate -and $user.AccountExpirationDate -lt (Get-Date)) {
+        $userInfo.alerts += "Account expiration date has passed"
+    }
+    if (-not $user.Enabled) { $userInfo.alerts += "Account is disabled" }
+
+    Write-Host "[DEBUG] Converting to JSON"
+    $userInfo | ConvertTo-Json -Depth 10
+    Write-Host "[COMMAND_COMPLETE]"
+    exit 0
+}
+catch {
+    Write-Host "[ERROR] $($_.Exception.Message)"
+    Write-Host "[ERROR] Stack trace: $($_.ScriptStackTrace)"
+    @{
+        error = $true
+        message = "Error"
+        details = $_.Exception.Message
+        stack = $_.ScriptStackTrace
+    } | ConvertTo-Json
+    Write-Host "[COMMAND_COMPLETE]"
     exit 1
 }
