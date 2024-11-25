@@ -8,26 +8,22 @@ param(
     [switch]$SkipChecks
 )
 
-# Set error action preference and trap errors
+# Suppress all output preferences
+$ProgressPreference = 'SilentlyContinue'
+$VerbosePreference = 'SilentlyContinue'
+$DebugPreference = 'SilentlyContinue'
+$InformationPreference = 'SilentlyContinue'
 $ErrorActionPreference = "Stop"
-$VerbosePreference = "SilentlyContinue"  # Suppress verbose output
 $Global:Error.Clear()
 
-trap {
-    Write-Host "[ERROR] Fatal error: $_"
-    Write-Host "[ERROR] Stack trace: $($_.ScriptStackTrace)"
-    @{
-        error = $true
-        message = "Fatal Error"
-        details = $_.ToString()
-        stack = $_.ScriptStackTrace
-    } | ConvertTo-Json
-    Write-Host "[COMMAND_COMPLETE]"
-    exit 1
+# Function for debug logging that won't interfere with JSON output
+function Write-DebugLog {
+    param([string]$Message)
+    if ($env:DEBUG) {
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        Add-Content -Path "$PSScriptRoot\..\logs\debug.log" -Value "[$timestamp] $Message"
+    }
 }
-
-# Import AD module silently
-Import-Module ActiveDirectory -Verbose:$false
 
 function Format-NullableDate {
     param([DateTime]$date)
@@ -38,16 +34,25 @@ function Format-NullableDate {
 }
 
 try {
-    Write-Host "[DEBUG] Starting script execution"
+    Write-DebugLog "Starting script execution"
     
     # Verify ActiveDirectory module is available
     if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
         throw "ActiveDirectory PowerShell module is not installed"
     }
+
+    # Sanitize inputs to prevent injection
+    if ($Username -match '["`\(\)<>]') {
+        throw "Invalid username format. Username contains invalid characters"
+    }
+
+    if ($Domain -notmatch '^[a-zA-Z0-9.-]+$') {
+        throw "Invalid domain format"
+    }
     
-    Write-Host "[DEBUG] Importing ActiveDirectory module"
-    Import-Module ActiveDirectory -ErrorAction Stop -Verbose
-    Write-Host "[DEBUG] Module imported successfully"
+    Write-DebugLog "Importing ActiveDirectory module"
+    Import-Module ActiveDirectory -ErrorAction Stop
+    Write-DebugLog "Module imported successfully"
 
     # Simple domain mapping
     $domainFQDN = switch ($Domain.ToLower()) {
@@ -55,16 +60,13 @@ try {
         "essilor" { "us.essilor.pvt" }
         default { $Domain }
     }
-    Write-Host "[DEBUG] Resolved domain FQDN: $domainFQDN"
+    Write-DebugLog "Resolved domain FQDN: $domainFQDN"
 
-    Write-Host "[DEBUG] Testing connection to domain"
-    $testConnection = Test-Connection -ComputerName $domainFQDN -Count 1 -ErrorAction Stop
-    if (-not $testConnection) {
-        throw "Cannot connect to domain: $domainFQDN"
-    }
-    Write-Host "[DEBUG] Domain connection successful"
+    Write-DebugLog "Testing connection to domain"
+    $null = Test-Connection -ComputerName $domainFQDN -Count 1 -ErrorAction Stop
+    Write-DebugLog "Domain connection successful"
 
-    Write-Host "[DEBUG] Starting AD query for user: $Username"
+    Write-DebugLog "Starting AD query for user: $Username"
     $properties = @(
         'DisplayName', 'SamAccountName', 'Name',
         'PasswordExpired', 'PasswordLastSet',
@@ -74,15 +76,15 @@ try {
         'msDS-UserPasswordExpiryTimeComputed'
     )
 
-    Write-Host "[DEBUG] Executing Get-ADUser command"
+    Write-DebugLog "Executing Get-ADUser command"
     $user = Get-ADUser -Identity $Username -Server $domainFQDN -Properties $properties -ErrorAction Stop
     
     if ($null -eq $user) {
         throw "User not found: $Username"
     }
 
-    Write-Host "[DEBUG] User found, processing data"
-    $userInfo = @{
+    Write-DebugLog "User found, processing data"
+    $result = @{
         alerts = @()
         accountInfo = @{
             DisplayName = if ($user.DisplayName) { $user.DisplayName } else { "" }
@@ -104,27 +106,24 @@ try {
     }
 
     # Add alerts
-    if ($user.LockedOut) { $userInfo.alerts += "Account is locked" }
-    if ($user.PasswordExpired) { $userInfo.alerts += "Password is expired" }
+    if ($user.LockedOut) { $result.alerts += "Account is locked" }
+    if ($user.PasswordExpired) { $result.alerts += "Password is expired" }
     if ($user.AccountExpirationDate -and $user.AccountExpirationDate -lt (Get-Date)) {
-        $userInfo.alerts += "Account expiration date has passed"
+        $result.alerts += "Account expiration date has passed"
     }
-    if (-not $user.Enabled) { $userInfo.alerts += "Account is disabled" }
+    if (-not $user.Enabled) { $result.alerts += "Account is disabled" }
 
-    Write-Host "[DEBUG] Converting to JSON"
-    $userInfo | ConvertTo-Json -Depth 10
-    Write-Host "[COMMAND_COMPLETE]"
-    exit 0
-}
-catch {
-    Write-Host "[ERROR] $($_.Exception.Message)"
-    Write-Host "[ERROR] Stack trace: $($_.ScriptStackTrace)"
-    @{
+    # Output only the JSON result - use Compress to remove whitespace
+    $jsonString = ($result | ConvertTo-Json -Depth 10 -Compress)
+    [Console]::WriteLine($jsonString)
+} catch {
+    # Return error JSON
+    $errorResult = @{
         error = $true
-        message = "Error"
+        message = "Error processing request"
         details = $_.Exception.Message
-        stack = $_.ScriptStackTrace
-    } | ConvertTo-Json
-    Write-Host "[COMMAND_COMPLETE]"
+    }
+    $errorJson = ($errorResult | ConvertTo-Json -Compress)
+    [Console]::WriteLine($errorJson)
     exit 1
 }
